@@ -3,6 +3,7 @@ module github.com/luganodes/slashing-observer
 go 1.23.5
 
 require (
+	github.com/alecthomas/kong v1.10.0
 	github.com/ethereum/go-ethereum v1.15.8
 	github.com/spf13/viper v1.20.1
 )

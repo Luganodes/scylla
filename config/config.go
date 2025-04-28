@@ -7,6 +7,11 @@ import (
 )
 
 var (
+	EXTERNAL_APP_NAME string
+	EXTERNAL_VERSION  string
+)
+
+var (
 	API_URL string
 	RPC_URL string
 	WS_URL  string
