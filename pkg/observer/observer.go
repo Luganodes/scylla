@@ -13,6 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/luganodes/slashing-observer/config"
+	"github.com/luganodes/slashing-observer/pkg/alertmanager"
 )
 
 var abiJSON = `[
@@ -109,10 +110,18 @@ func StartVetoSlasherObserver(ctx context.Context, address string) {
 					}
 				}
 
-				fmt.Printf("\n📣 [%s] Event: %s\n", address, event.Name)
+				fmt.Printf("\n📣 [%s] Event: %s\n", address, event.Name) // from here to main  a channel
 				for k, v := range decoded {
 					fmt.Printf(" - %s: %v\n", k, v)
 				}
+
+				alertData := map[string]interface{}{
+					"event":   event.Name,
+					"address": address,
+					"data":    decoded,
+				}
+				alertmanager.SendStructuredData(alertData)
+
 			case <-ctx.Done():
 				log.Printf("🛑 [%s] Stopping observer...", address)
 				return

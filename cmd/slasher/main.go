@@ -51,9 +51,11 @@ func main() {
 				continue
 			}
 
-			log.Printf("✅ Spawning observer for Vault: %s | Slasher: %s | Type: %d | Name: %s", eachvault.Address, slasher, slasherType, eachvault.Meta.Name)
+			log.Printf("✅ Vault detials: \n	 Vault: %s \n	 Slasher: %s \n	 Type: %d \n	 Name: %s", eachvault.Address, slasher, slasherType, eachvault.Meta.Name)
 
 			observer.StartVetoSlasherObserver(ctx, slasher) // in future updates this will change as if more type of slashable vaults are there
+			// need to send data from veto slasher to alert parser
+
 		}
 	}
 
