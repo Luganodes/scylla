@@ -4,3 +4,7 @@ api_url = "https://app.symbiotic.fi/api/v2/vaults"
 [ethereum]
 rpc_url = "http://ethereum-mainnet-rpc:8545"
 ws_url  = "ws://ethereum-mainnet-rpc:8546"
+
+[prometheus]
+host = "127.0.0.1"
+port = 9091
