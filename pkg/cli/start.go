@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/luganodes/slashing-observer/config"
+	"github.com/luganodes/slashing-observer/pkg/metrics"
 	"github.com/luganodes/slashing-observer/pkg/observer"
 	"github.com/luganodes/slashing-observer/pkg/schema"
 	"github.com/luganodes/slashing-observer/pkg/vault"
@@ -20,17 +21,20 @@ func (cmd *StartCmd) Run() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Catch interrupt signal
+	metrics.Init()
+	metrics.Up.Set(1)
+	metrics.StartServer(config.PROMETHEUS_HOST, config.PROMETHEUS_PORT)
+
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt)
 
 	log.Println("🚀 Starting slashing observer...")
 
-	// Track which vaults are already being observed
 	observedVaults := make(map[string]struct{})
 	var mu sync.Mutex
 
-	// Function to fetch vaults and start new observers
+	var observerCount int
+
 	fetchAndStartObservers := func() {
 		log.Printf("🔄 Fetching vaults...")
 		vaults, err := vault.GetVaultInfoList()
@@ -67,17 +71,17 @@ func (cmd *StartCmd) Run() error {
 
 				log.Printf("✅ New vault observer:\n  Vault: %s\n  Slasher: %s\n  Type: %d\n  Name: %s",
 					v.Address, slasher, slasherType, v.Meta.Name)
-
-				observer.StartVetoSlasherObserver(ctx, slasher)
+				metrics.CountOfObservers.Inc()
+				observerCount++
+				metrics.CountOfSlashableVaults.Set(float64(observerCount))
+				observer.StartVetoSlasherObserver(ctx, slasher, v.Address)
 
 			}(eachvault)
 		}
 	}
 
-	// Initial run
 	fetchAndStartObservers()
 
-	// Start ticker for periodic fetching
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
@@ -88,7 +92,7 @@ func (cmd *StartCmd) Run() error {
 		case <-sig:
 			log.Println("🛑 Shutting down observers...")
 			cancel()
-			time.Sleep(2 * time.Second) // allow goroutines to exit gracefully
+			time.Sleep(10 * time.Second)
 			return nil
 		}
 	}

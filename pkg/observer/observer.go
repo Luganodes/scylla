@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/luganodes/slashing-observer/config"
 	"github.com/luganodes/slashing-observer/pkg/alertmanager"
+	"github.com/luganodes/slashing-observer/pkg/metrics"
 )
 
 var abiJSON = `[
@@ -50,7 +51,7 @@ var abiJSON = `[
   }
 ]`
 
-func StartVetoSlasherObserver(ctx context.Context, address string) {
+func StartVetoSlasherObserver(ctx context.Context, address string, vault string) {
 	client, err := ethclient.Dial(config.WS_URL)
 	if err != nil {
 		log.Printf("❌ [%s] Failed to connect to WebSocket: %v", address, err)
@@ -85,7 +86,7 @@ func StartVetoSlasherObserver(ctx context.Context, address string) {
 	go func() {
 		defer client.Close()
 		log.Printf("📡 [%s] Listening for slashing events...", address)
-
+		metrics.SlashingEventCounter.WithLabelValues(vault, address).Add(0)
 		for {
 			select {
 			case err := <-sub.Err():
@@ -121,6 +122,7 @@ func StartVetoSlasherObserver(ctx context.Context, address string) {
 					"data":    decoded,
 				}
 				alertmanager.SendStructuredData(alertData)
+				metrics.SlashingEventCounter.WithLabelValues(vault, address).Inc()
 
 			case <-ctx.Done():
 				log.Printf("🛑 [%s] Stopping observer...", address)

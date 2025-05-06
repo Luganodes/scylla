@@ -16,6 +16,7 @@ build:
 	go build $(BUILD_FLAGS) -o $(BINARY_NAME) cmd/app/main.go
 	@echo "Build complete: ./$(BINARY_NAME)"
 
+
 clean:
 	@echo "Cleaning..."
 	@if [ -f $(BINARY_NAME) ]; then rm -f $(BINARY_NAME); fi

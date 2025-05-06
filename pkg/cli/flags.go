@@ -15,5 +15,5 @@ type PrometheusSchema struct {
 }
 
 type ConfigSchema struct {
-	ConfigFile string `help:"[OPTIONAL] Path to the configuration file (toml) " default:"" name:"config.file"`
+	ConfigFile string `help:"[OPTIONAL] Path to the configuration file (toml) overrides all the flags " default:"" name:"config.file"`
 }
