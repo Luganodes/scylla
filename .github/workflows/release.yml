@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*' 
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for release (required for manual triggers)'
+        required: true
+        type: string
 
 jobs:
   release:
@@ -28,6 +33,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y make
 
+      - name: Set release tag
+        id: get_tag
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          else
+            echo "TAG_NAME=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
+          fi
+          echo "Using tag: ${{ env.TAG_NAME }}"
+
       - name: Build Release Binaries
         run: make release
 
@@ -35,9 +50,11 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ env.TAG_NAME }}
           draft: false
           prerelease: false
           files: dist/*
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_WORKFLOW_TOKEN }}
+
