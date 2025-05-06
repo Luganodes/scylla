@@ -5,8 +5,6 @@ BUILD_FLAGS        := -ldflags "\
 	-X $(CONFIG_PACKAGE).EXTERNAL_VERSION=$(VERSION) \
 	-X $(CONFIG_PACKAGE).EXTERNAL_APP_NAME=$(BINARY_NAME)"
 
-
-
 .PHONY: all build clean
 
 all: build
