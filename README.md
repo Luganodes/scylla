@@ -5,9 +5,12 @@ Usage: scylla <command> [flags]
 
 Scylla is a tool designed to monitor the Symbiotic protocol for potential slashing events. It provides insights into the health and status of Symbiotic vaults, allowing operators to react swiftly to any anomalies.
 
-Global Flags:
+### Installation
+Run the following to install scylla on your system:
 
-These flags can be used with any Scylla command.
+```bash
+curl https://raw.githubusercontent.com/Luganodes/scylla/main/install.sh | sudo bash
+``` 
 ## Global Flags
 
 | Flag Name           | Shorthand | Default Value                 | Description                                                                      |
